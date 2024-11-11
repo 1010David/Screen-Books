@@ -27,7 +27,7 @@ public class Libros {
     // Sobrescribe el método `toString` para mostrar información detallada de un libro.
     @Override
     public String toString() {
-        return "\n____________________LIBRO____________________\n" +
+        return "\n_                  _BOOK_                  _\n" +
                 " Titulo: '" + titulo + "\n" +
                 " Autor: " + autores.getNombre() + "\n" +
                 " Idioma: " + idioma + "\n" +
@@ -85,5 +85,20 @@ public class Libros {
 
     public void setTitulo(String titulo) {
         this.titulo = titulo;
+    }
+
+    public Libros(Autores autores) {
+        this.autores = autores;
+    }
+    // Constructor vacío necesario para Hibernate
+    public Libros() {
+    }
+
+    public Libros(Long id, String titulo, IdiomaDeLibro idioma, double numeroDescargas, Autores autores) {
+        this.id = id;
+        this.titulo = titulo;
+        this.idioma = idioma;
+        this.numeroDescargas = numeroDescargas;
+        this.autores = autores;
     }
 }

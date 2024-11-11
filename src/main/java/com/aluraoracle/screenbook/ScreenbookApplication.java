@@ -25,6 +25,6 @@ class LiteraturaApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		Principal principal = new Principal(autoresRespositorio, libroRepositorio);
-		principal.muestraMenu();
+		principal.mostrarElMenu();
 	}
 }

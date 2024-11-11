@@ -28,7 +28,7 @@ public class Principal{
     }
 
     // Método que muestra el menú principal y maneja la navegación
-    public void muestraMenu(){
+    public void mostrarElMenu(){
         // Se obtiene la respuesta de la API en formato JSON
         var json = consumoApi.obtenerDatos(URL_BASE);
 
