@@ -1,6 +1,6 @@
 package com.aluraoracle.screenbook.principal;
 
-// Importación de las clases necesarias
+// Importación de clases necesarias para el funcionamiento de la aplicación
 import com.aluraoracle.screenbook.model.*;
 import com.aluraoracle.screenbook.repository.AutoresRepository;
 import com.aluraoracle.screenbook.repository.LibroRepository;
@@ -11,216 +11,197 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-public class Principal{
+public class Principal {
 
-    // Declaración de objetos y variables
-    private Scanner teclado = new Scanner(System.in);  // Para leer entradas desde la consola
-    private static final String URL_BASE = "https://gutendex.com/books/";  // URL base para la API
-    private ConsumoDeAPI consumoApi = new ConsumoDeAPI();  // Objeto para consumir la API
-    private ConvertirDatos conversor = new ConvertirDatos();  // Objeto para convertir datos de la API a clases
-    private AutoresRepository autoresRespositorio;  // Repositorio de autores
-    private LibroRepository libroRepositorio;  // Repositorio de libros
+    // Scanner para leer la entrada del usuario desde la consola
+    private Scanner teclado = new Scanner(System.in);
 
-    // Constructor de la clase Principal que recibe repositorios de autores y libros
+    // URL base para la API desde donde se obtendrán datos de libros
+    private static final String URL_BASE = "https://gutendex.com/books/";
+
+    // Inicialización de servicios para consumir API y convertir datos obtenidos
+    private ConsumoDeAPI consumoApi = new ConsumoDeAPI();
+    private ConvertirDatos conversor = new ConvertirDatos();
+
+    // Repositorios para almacenar y gestionar autores y libros en la base de datos
+    private AutoresRepository autoresRespositorio;
+    private LibroRepository libroRepositorio;
+
+    // Constructor que recibe repositorios de autores y libros como dependencias
     public Principal(AutoresRepository autor, LibroRepository libro) {
         this.autoresRespositorio = autor;
         this.libroRepositorio = libro;
     }
 
-    // Método que muestra el menú principal y maneja la navegación
-    public void mostrarElMenu(){
-        // Se obtiene la respuesta de la API en formato JSON
+    // Método para mostrar el menú principal y manejar las opciones seleccionadas por el usuario
+    public void mostrarElMenu() {
+        // Llama al servicio para obtener datos en formato JSON desde la URL base
         var json = consumoApi.obtenerDatos(URL_BASE);
+        int opcion;
 
-        int opcion = -1;
-        while (opcion != 0) {
-            // Se muestra el menú de opciones al usuario
-            String menu = """
-                    ------------------------------
-                   1.- Buscar Libro por titulo
-                   2.- Mostrar los libros registrados
-                   3.- Mostrar los autores
-                   4.- Buscar autores que se encontraban vivos en determinado año
-                   5.- Mostrar libros por idioma
-                    0.-Salir del Programa
-                   """;
-            System.out.println( "\n"+ menu);
+        // Bucle do-while que se ejecuta hasta que el usuario elige salir con la opción 0
+        do {
+            // Menú principal mostrado en consola con varias opciones para el usuario
+            System.out.println("""
+                     ------------------------------
+                    1.- Buscar titulo de Libro
+                    2.- Mostrar los libros guardados
+                    3.- Mostrar los autores registrados
+                    4.- Buscar autores que vivian en un año determinado
+                    5.- Mostrar libros por idioma
+                    0.- Salir del Programa
+                    """);
             System.out.print("Opción: ");
-            opcion = teclado.nextInt();  // Se lee la opción del usuario
-            teclado.nextLine();  // Limpiar el buffer
+            opcion = teclado.nextInt();  // Lee la opción seleccionada por el usuario
+            teclado.nextLine();  // Limpia el buffer de entrada
 
-            // Se ejecuta el caso correspondiente según la opción seleccionada
+            // Estructura switch para manejar cada opción del menú
             switch (opcion) {
-                case 1:
-                    buscarLibrosPorNombre();
-                    break;
-                case 2:
-                    mostrarLosLibrosRegistrados();
-                    break;
-                case 3:
-                    listaAutoresRegistrados();
-                    break;
-                case 4:
-                    AutoresVivosEnDeterminadoTiempo();
-                    break;
-                case 5:
-                    listarLibrosPorIdiomas();
-                    break;
-                case 0:
-                    System.out.println("Saliendo...");
-                    break;
-                default:
-                    System.out.println("\nOpción no válida\n");
-                    break;
+                case 1 -> buscarLibrosPorNombre();  // Llama al método para buscar libros por título
+                case 2 -> mostrarLosLibrosRegistrados();  // Muestra todos los libros registrados
+                case 3 -> listaAutoresRegistrados();  // Muestra todos los autores registrados
+                case 4 -> AutoresVivosEnDeterminadoTiempo();  // Muestra autores que vivieron en un año específico
+                case 5 -> listarLibrosPorIdiomas();  // Muestra libros según el idioma seleccionado
+                case 0 -> System.out.println("Terminando...");  // Mensaje de salida
+                default -> System.out.println("\nOpción no válida\n");  // Manejo de opción inválida
             }
-        }
+        } while (opcion != 0);  // El bucle continúa hasta que se elige la opción 0
     }
 
-    // Método para buscar libros por nombre
-    private void buscarLibrosPorNombre() {
-        System.out.println("Ingrese nombre del libro que deseas buscar");
-        var tituloLibro = teclado.nextLine();  // Se lee el título del libro
 
-        // Construcción de la URL para hacer la consulta a la API
+    private void buscarLibrosPorNombre() {
+        // Solicita al usuario el título del libro que desea buscar
+        System.out.println("Nombre del libro por buscar");
+        var tituloLibro = teclado.nextLine();
+
+        // Construye la URL para la búsqueda en la API, reemplazando espacios con '+'
         String url = URL_BASE + "?search=" + tituloLibro.replace(" ", "+");
-        String json = consumoApi.obtenerDatos(url);  // Se obtiene la respuesta de la API
-        var datosBusqueda = conversor.obtenerDatos(json, Datos.class);  // Se convierten los datos del JSON
+
+        // Llama al servicio de API para obtener datos en formato JSON de la URL construida
+        String json = consumoApi.obtenerDatos(url);
+
+        // Convierte el JSON a un objeto Datos, que contiene la lista de resultados
+        var datosBusqueda = conversor.obtenerDatos(json, Datos.class);
+
+        // Filtra los resultados buscando un libro cuyo título coincida exactamente
         Optional<DatosLibros> libroBuscado = datosBusqueda.resultados()
                 .stream()
-                .filter(l -> l.titulo().toUpperCase().contains(tituloLibro.toUpperCase()))
-                .findFirst();  // Se busca el libro por el título
+                .filter(l -> l.titulo().equalsIgnoreCase(tituloLibro))
+                .findFirst();
 
+        // Si el libro está presente en los resultados, procede con el registro en la base de datos
         if (libroBuscado.isPresent()) {
-            // Si se encuentra el libro, se procesa la información del autor
             DatosLibros datoslibroEcontrado = libroBuscado.get();
-            DatosAutores datosAutor = datoslibroEcontrado.autor().get(0);
+            DatosAutores datosAutor = datoslibroEcontrado.autor().get(0);  // Obtiene el primer autor del libro
 
-            // Se busca el autor en la base de datos o se crea uno nuevo si no existe
+            // Busca si el autor ya está registrado en la base de datos. Si no está, lo guarda
             Autores autor = autoresRespositorio.findByNombreIgnoreCase(datosAutor.nombre()).orElseGet(() -> {
                 Autores nuevoAutor = new Autores(datosAutor);
                 return autoresRespositorio.save(nuevoAutor);
             });
 
-            // Se verifica si el libro ya está registrado
-            Optional<Libros> libroExiste = libroRepositorio.findByTituloIgnoreCase(datoslibroEcontrado.titulo());
-
-            if (libroExiste.isPresent()) {
-                System.out.println("\nEl libro ya esta registrado, pruebe con otro libro\n");
+            // Verifica si el libro ya existe en la base de datos
+            if (libroRepositorio.findByTituloIgnoreCase(datoslibroEcontrado.titulo()).isPresent()) {
+                System.out.println("\nEl libro ya está registrado, pruebe con otro libro\n");
             } else {
-                // Si el libro no existe, se registra el nuevo libro
+                // Si el libro no existe, lo registra, asigna su autor y lo guarda en la base de datos
                 Libros libroEcontrado = new Libros(datoslibroEcontrado);
                 libroEcontrado.setAutores(autor);
                 libroRepositorio.save(libroEcontrado);
-                System.out.println(libroEcontrado);
-                System.out.println("\nLibro registrado exitosamente\n");
+                System.out.println(libroEcontrado + "\nLibro registrado exitosamente\n");
             }
         } else {
+            // Si no se encontró el libro, muestra un mensaje al usuario
             System.out.println("\nLibro no encontrado, pruebe con otro libro\n");
         }
     }
 
-    // Método para mostrar los libros registrados en la base de datos
     private void mostrarLosLibrosRegistrados() {
-        List<Libros> libros = libroRepositorio.findAll();  // Se obtienen todos los libros
+        // Obtiene todos los libros registrados en la base de datos
+        List<Libros> libros = libroRepositorio.findAll();
 
+        // Verifica si la lista de libros está vacía
         if (libros.isEmpty()) {
-            System.out.println("\nNo hay libros registrados");
+            System.out.println("\nBase sin datos");
         } else {
-            libros.forEach(System.out::println);  // Se muestran los libros
+            // Si hay libros registrados, los muestra en la consola
+            libros.forEach(System.out::println);
         }
     }
 
-    // Método para mostrar los autores registrados
     private void listaAutoresRegistrados() {
-        List<Autores> autores = autoresRespositorio.findAll();  // Se obtienen todos los autores
+        // Obtiene todos los autores registrados en la base de datos
+        List<Autores> autores = autoresRespositorio.findAll();
 
+        // Verifica si la lista de autores está vacía
         if (autores.isEmpty()) {
-            System.out.println("\nNo hay autores registrados");
+            System.out.println("\nBase sin datos");
         } else {
-            autores.forEach(System.out::println);  // Se muestran los autores
+            // Si hay autores registrados, los muestra en la consola
+            autores.forEach(System.out::println);
         }
     }
 
-    // Método para buscar autores vivos en un año determinado
     private void AutoresVivosEnDeterminadoTiempo() {
-        System.out.println("Ingrese el año en el cual desea buscar autores vivos");
-
+        // Solicita al usuario que ingrese el año para buscar autores que vivían en esa época
+        System.out.println("Año del autor vivo");
         try {
-            int anio = teclado.nextInt();  // Se lee el año
-            teclado.nextLine();  // Limpiar el buffer
-            List<Autores> autoresVivos = autoresRespositorio.autoresVivosEnUnDeterminadoAnio(anio);  // Se buscan autores vivos en el año
+            int anio = teclado.nextInt();  // Lee el año ingresado
+            teclado.nextLine();  // Limpia el buffer de entrada
+
+            // Obtiene los autores que vivían en el año especificado
+            List<Autores> autoresVivos = autoresRespositorio.autoresVivosEnUnDeterminadoAnio(anio);
+
+            // Verifica si no hay autores en ese año
             if (autoresVivos.isEmpty()) {
-                System.out.println("\nNo hay autores vivos en el año " + anio);
+                System.out.println("\nNo hay autores vivos en " + anio);
             } else {
-                autoresVivos.forEach(System.out::println);  // Se muestran los autores vivos
+                // Muestra los autores encontrados
+                autoresVivos.forEach(System.out::println);
             }
         } catch (Exception e) {
-            System.out.println("\nAño no válido");
-            teclado.nextLine();  // Limpiar el buffer
+            // Muestra un mensaje en caso de que la entrada no sea válida
+            System.out.println("\nNo válido");
+            teclado.nextLine();  // Limpia el buffer de entrada para evitar errores futuros
         }
     }
 
-    // Método para listar libros según su idioma
     private void listarLibrosPorIdiomas() {
-        System.out.println("Ingrese el idioma en el cual desea buscar los libros");
-        int opcion = -1;
-        while (opcion != 0) {
-            // Menú de idiomas
-            String menuIdiomas = """
+        // Solicita al usuario el idioma en el que buscar los libros
+        System.out.println("Idioma en el cual buscar los libros");
+        int opcion;
+
+        // Bucle para mostrar las opciones de idiomas hasta que el usuario elija salir
+        do {
+            System.out.println("""
                     1 - Español
-                    2 - Ingles
-                    3 - Frances
-                    4 - Portugues
+                    2 - Inglés
+                    3 - Francés
+                    4 - Portugués
                     0 - Salir
-                    """;
-            System.out.println(menuIdiomas);
+                    """);
+            opcion = teclado.nextInt();
+            teclado.nextLine();
 
-            try {
-                opcion = teclado.nextInt();  // Se lee la opción del idioma
-            } catch (Exception e) {
-                System.out.println("Opción no válida");
-                teclado.nextLine();  // Limpiar el buffer
-                continue;
-            }
-
-            // Según el idioma elegido, se muestran los libros filtrados
-            switch (opcion) {
-                case 1:
-                    List<Libros> librosEspanol = libroRepositorio.findByIdioma(IdiomaDeLibro.ES);
-                    if (librosEspanol.isEmpty()) {
-                        System.out.println("\nNo hay libros en español");
-                    } else {
-                        librosEspanol.forEach(System.out::println);  // Mostrar libros en español
-                    }
-                    break;
-                case 2:
-                    List<Libros> librosIngles = libroRepositorio.findByIdioma(IdiomaDeLibro.EN);
-                    if (librosIngles.isEmpty()) {
-                        System.out.println("\nNo hay libros en inglés");
-                    } else {
-                        librosIngles.forEach(System.out::println);  // Mostrar libros en inglés
-                    }
-                    break;
-                case 3:
-                    List<Libros> librosFrances = libroRepositorio.findByIdioma(IdiomaDeLibro.FR);
-                    if (librosFrances.isEmpty()) {
-                        System.out.println("\nNo hay libros en francés");
-                    } else {
-                        librosFrances.forEach(System.out::println);  // Mostrar libros en francés
-                    }
-                    break;
-                case 4:
-                    List<Libros> librosPortugues = libroRepositorio.findByIdioma(IdiomaDeLibro.PT);
-                    if (librosPortugues.isEmpty()) {
-                        System.out.println("\nNo hay libros en portugués");
-                    } else {
-                        librosPortugues.forEach(System.out::println);  // Mostrar libros en portugués
-                    }
-                    break;
-                default:
+            // Switch con expresión `yield` para filtrar libros por idioma seleccionado
+            List<Libros> librosPorIdioma = switch (opcion) {
+                case 1 -> libroRepositorio.findByIdioma(IdiomaDeLibro.ES);
+                case 2 -> libroRepositorio.findByIdioma(IdiomaDeLibro.EN);
+                case 3 -> libroRepositorio.findByIdioma(IdiomaDeLibro.FR);
+                case 4 -> libroRepositorio.findByIdioma(IdiomaDeLibro.PT);
+                default -> {
                     System.out.println("\nOpción no válida");
-                    break;
+                    yield List.of();  // Retorna una lista vacía en caso de opción no válida
+                }
+            };
+
+            // Verifica si no hay libros en el idioma seleccionado
+            if (librosPorIdioma.isEmpty()) {
+                System.out.println("\nNo hay libros en el idioma seleccionado");
+            } else {
+                // Muestra los libros en el idioma seleccionado
+                librosPorIdioma.forEach(System.out::println);
             }
-        }
+        } while (opcion != 0);  // Sale del bucle si el usuario elige 0
     }
 }

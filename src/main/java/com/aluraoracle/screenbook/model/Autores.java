@@ -45,17 +45,19 @@ public class Autores {
     // Genera una lista de nombres de los libros asociados y la incluye en la cadena de texto.
     @Override
     public String toString() {
-        String librosNombres = libros.stream()
-                .map(Libros::getTitulo) // Obtiene el título de cada libro.
-                .collect(Collectors.joining(", ")); // Une los títulos en una sola cadena separada por comas.
+        String librosNombres = (libros == null || libros.isEmpty())
+                ? "No tiene libros asociados"
+                : libros.stream()
+                .map(Libros::getTitulo)
+                .collect(Collectors.joining(", "));
 
         return "-------------Autor-------------\n" +
-                " Nombre: '" + nombre + "\n" +
-                " Fecha De Nacimiento: " + fechaDeNacimiento +"\n"+
-                " FechaDeMuerte: " + fechaDeMuerte +"\n"+
-                " Libros: " + librosNombres+"\n"
-                ;
+                " Nombre: " + nombre + "\n" +
+                " Fecha De Nacimiento: " + (fechaDeNacimiento != null ? fechaDeNacimiento : "N/A") + "\n" +
+                " Fecha De Muerte: " + (fechaDeMuerte != null ? fechaDeMuerte : "N/A") + "\n" +
+                " Libros: " + librosNombres + "\n";
     }
+
 
     // Métodos getter y setter para cada atributo de la clase.
     public Long getId() {

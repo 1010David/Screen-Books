@@ -24,16 +24,22 @@ public class Libros {
         this.numeroDescargas = datosLibros.numeroDeDescargas();
     }
 
-    // Sobrescribe el método `toString` para mostrar información detallada de un libro.
     @Override
     public String toString() {
-        return "\n_                  _BOOK_                  _\n" +
-                " Titulo: '" + titulo + "\n" +
-                " Autor: " + autores.getNombre() + "\n" +
-                " Idioma: " + idioma + "\n" +
-                " Numero Descargas: " + numeroDescargas + "\n" +
-                "_____________________________________________\n";
+        return String.format(
+                "\n_                  _BOOK_                  _\n" +
+                        " Título: '%s'\n" +
+                        " Autor: %s\n" +
+                        " Idioma: %s\n" +
+                        " Número de Descargas: %.2f\n" +
+                        "_____________________________________________\n",
+                titulo,
+                (autores != null ? autores.getNombre() : "Autor desconocido"),
+                idioma,
+                numeroDescargas
+        );
     }
+
 
     // Define el campo `idioma` como una enumeración `IdiomaDeLibro`, almacenada en la base de datos como una cadena.
     @Enumerated(EnumType.STRING)
